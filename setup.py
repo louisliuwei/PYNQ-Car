@@ -21,7 +21,7 @@ setup(
 	author_email = "junhonghust@gmail.com",
 
 	include_package_data = True,
-	packages = ['pynqcar'],
+	packages = ['pynq_car'],
 	package_data = {
 	'' : ['*.bit','*.tcl','*.py','*.bin','*.txt', '*.cpp', '*.h', '*.sh'],
 	},
@@ -35,5 +35,5 @@ if 'install' in sys.argv:
 	if os.path.isdir(os.environ["PYNQ_JUPYTER_NOTEBOOKS"]+"/pynq-car/"):
 		shutil.rmtree(os.environ["PYNQ_JUPYTER_NOTEBOOKS"]+"/pynq-car/")
 	shutil.copytree("boards/Pynq-Z2/notebooks/",os.environ["PYNQ_JUPYTER_NOTEBOOKS"]+"/pynq-car/")
-	shutil.copytree("Robot/overlays/",os.path.join('/usr/local/lib',os.environ['PYNQ_PYTHON'],'dist-packages/pynq/overlays/')) #copy overlay
-	shutil.copytree("Robot/lib/arduino/",os.path.join('/usr/local/lib',os.environ['PYNQ_PYTHON'],'dist-packages/pynq/lib/arduino/')) #copy overlay
+	shutil.copytree("pynq_car/overlays/",os.path.join('/usr/local/lib',os.environ['PYNQ_PYTHON'],'dist-packages/pynq/overlays/')) #copy overlay
+	shutil.copytree("pynq_car/lib/arduino/",os.path.join('/usr/local/lib',os.environ['PYNQ_PYTHON'],'dist-packages/pynq/lib/arduino/')) #copy overlay
