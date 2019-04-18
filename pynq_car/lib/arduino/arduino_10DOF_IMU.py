@@ -101,7 +101,7 @@ class TenDOF_IMU(object):
         Microblaze processor instance used by this module.
         
     """
-    def __init__(self, mb_info):
+    def __init__(self, mb_info, channel):
         """Return a new instance of an 10DOF IMU object. 
         
         Parameters
@@ -113,13 +113,17 @@ class TenDOF_IMU(object):
         """
 
         self.microblaze = Arduino(mb_info, ARDUINO_10DOF_IMU_PROGRAM)
+        self.microblaze.write_mailbox(0, channel)
         self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
-        data = self.microblaze.read_mailbox(0, 2)
+        data = self.microblaze.read_mailbox(0, 3)
         
         if not data[0]:
-            raise ValueError("IMU initialization failed.")
+            raise ValueError("I2C Multiplexer failed.")
         
         if not data[1]:
+            raise ValueError("IMU initialization failed.")
+        
+        if not data[2]:
             raise ValueError("Pressure sensor initialization failed.")
 
     def reset(self):

@@ -107,7 +107,7 @@ class RUN_IMU(object):
         Microblaze processor instance used by this module.
         
     """
-    def __init__(self, mb_info, pin = MOTOR_PINS):
+    def __init__(self, mb_info, channel, pin = MOTOR_PINS):
         """Return a new instance of an 10DOF IMU object. 
         
         Parameters
@@ -121,14 +121,19 @@ class RUN_IMU(object):
         self.microblaze = Arduino(mb_info, ARDUINO_RUN_IMU_PROGRAM)
         self.microblaze.write_mailbox(0, 0)
         self.microblaze.write_blocking_command(PAGE) #Choose IMU device
+        self.microblaze.write_mailbox(0, channel)
         self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
-        data = self.microblaze.read_mailbox(0, 2)
+        data = self.microblaze.read_mailbox(0, 3)
         
         if not data[0]:
-            raise ValueError("IMU initialization failed.")
+            raise ValueError("I2C Multiplexer failed.")
         
         if not data[1]:
+            raise ValueError("IMU initialization failed.")
+        
+        if not data[2]:
             raise ValueError("Pressure sensor initialization failed.")
+
 
         if len(pin) != 12:
             raise ValueError("the number of pin should be set exactly 12.")

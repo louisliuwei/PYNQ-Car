@@ -54,7 +54,7 @@ class Gesture_sen(object):
         Microblaze processor instance used by this module.
         
     """
-    def __init__(self, mb_info):
+    def __init__(self, mb_info, channel):
         """Return a new instance of an gesture sensor object. 
         
         Parameters
@@ -65,6 +65,7 @@ class Gesture_sen(object):
 
         """
         self.microblaze = Arduino(mb_info,ARDUINO_GESTURE_PROGRAM)
+        self.microblaze.write_mailbox(0, channel)
         self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
         data = self.microblaze.read_mailbox(0, 2)
         

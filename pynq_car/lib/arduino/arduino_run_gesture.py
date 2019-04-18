@@ -43,9 +43,8 @@ ARDUINO_RUN_GESTURE_PROGRAM = "arduino_run_gesture.bin"
 CONFIG_IOP_SWITCH = 0x1
 STOP = 0x3
 MOVE = 0x5
-VELOCITY = 0x7
-PWM_CONTROL = 0x9
-READ_GESTURE = 0xB
+DISTANCE = 0x7
+READ_GESTURE = 0x9
 
 '''
 PINS[0:4] is set the pins to control
@@ -61,6 +60,50 @@ PINS[4:8] is to set the pin to control the direction of motor
 
 PINS[8:12] is to set the pins to record the velocity
 '''
+def _reg2float(reg):
+    """Converts 32-bit register value to floats in Python.
+
+    Parameters
+    ----------
+    reg: int
+        A 32-bit register value read from the mailbox.
+
+    Returns
+    -------
+    float
+        A float number translated from the register value.
+
+    """
+    if reg == 0:
+        return 0.0
+    sign = (reg & 0x80000000) >> 31 & 0x01
+    exp = ((reg & 0x7f800000) >> 23) - 127
+    if exp == 0:
+        man = (reg & 0x007fffff) / pow(2, 23)
+    else:
+        man = 1 + (reg & 0x007fffff) / pow(2, 23)
+    result = pow(2, exp) * man * ((sign * -2) + 1)
+    return float("{0:.2f}".format(result))
+
+
+def _reg2int(reg):
+    """Converts 32-bit register value to signed integer in Python.
+
+    Parameters
+    ----------
+    reg: int
+        A 32-bit register value read from the mailbox.
+
+    Returns
+    -------
+    int
+        A signed integer translated from the register value.
+
+    """
+    result = -(reg >> 31 & 0x1) * (1 << 31)
+    for i in range(31):
+        result += (reg >> i & 0x1) * (1 << i)
+    return result
 
 class Run_gesture(object):
     """This class controls the Automoto. 
@@ -74,7 +117,7 @@ class Run_gesture(object):
         Microblaze processor instance used by this module.
         
     """
-    def __init__(self, mb_info, pin = MOTOR_PINS):
+    def __init__(self, mb_info, channel, pin = MOTOR_PINS):
         """Return a new instance of an Grove LEDbar object. 
         
         Parameters
@@ -94,8 +137,9 @@ class Run_gesture(object):
 
         self.microblaze = Arduino(mb_info, ARDUINO_RUN_GESTURE_PROGRAM)
         self.microblaze.write_mailbox(0, pin)
+        self.microblaze.write_mailbox(48, channel)
         self.microblaze.write_blocking_command(CONFIG_IOP_SWITCH)
-
+        
         data = self.microblaze.read_mailbox(0, 2)
         
         if not data[0]:
@@ -137,9 +181,9 @@ class Run_gesture(object):
         self.microblaze.write_mailbox(0, data_in)
         self.microblaze.write_blocking_command(MOVE)
 
-    def velocity(self):
+    def distance(self, opt = 0, which = 1):
         """
-        return the average of the four motor velocity
+        return the average of the four motor distance
         
         Parameters
         ----------
@@ -147,37 +191,13 @@ class Run_gesture(object):
 
         Returns
         -------
-        velocity of the whole car
+        distance of the whole car
         """
-        self.microblaze.write_block_command(VELOCITY)
-        avalue = self.microblaze.read_mailbox(0)
-        bvalue = self.microblaze.read_mailbox(1)
-        cvalue = self.microblaze.read_mailbox(2)
-        dvalue = self.microblaze.read_mailbox(3)
-        value = (avalue + bvalue + cvalue + dvalue)/4
-        return value
-        
-    def pwm_control(self, timer = 0,period = 625998, pulse =  312998):
-        """
-        set which timer to control and
-        control the output of pwm
-        
-        Parameters
-        ----------
-        long int: period, pulse
-        int : timer
+        self.microblaze.write_mailbox(0, [opt, which])
+        self.microblaze.write_blocking_command(DISTANCE)
+        value = _reg2int(self.microblaze.read_mailbox(0))
+        return value * (0.08*3.14159/2.0/1920.0)
 
-        Returns
-        -------
-        None
-        
-        """
-        data_in = []
-        data_in.append(timer)
-        data_in.append(period)
-        data_in.append(pulse)
-        self.microblaze.write_mailbox(0, data_in)
-        self.microblaze.write_block_command(PWM_CONTROL)
 
     def read_gesture(self):
         """Get the data from the gesture sensor.
