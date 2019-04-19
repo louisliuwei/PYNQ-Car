@@ -45,3 +45,7 @@ if 'install' in sys.argv:
 
 	for f in os.listdir(os.path.join(board_folder, 'lib/arduino/')):
 		shutil.copyfile(os.path.join(board_folder, 'lib/arduino/', f) ,os.path.join('/usr/local/lib', os.environ['PYNQ_PYTHON'], 'dist-packages/pynq/lib/arduino', f)) #copy lib
+
+	if os.path.isdir(os.environ["PYNQ_JUPYTER_NOTEBOOKS"]+"/driver/"):
+		shutil.rmtree(os.environ["PYNQ_JUPYTER_NOTEBOOKS"]+"/driver/")
+	shutil.copytree(os.path.join(board_folder, 'driver'), os.environ["PYNQ_JUPYTER_NOTEBOOKS"]+"/driver/") #copy driver
