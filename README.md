@@ -1,6 +1,7 @@
 # Robot Car Development Platform for PYNQ
 
 This repo contains the pip install package for Robot Car Development Platform for PYNQ. It's only support PYNQ Z2 board.
+![](Robot.jpg) 
 
 ## Quick Start
 
