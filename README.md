@@ -21,3 +21,11 @@ sudo python setup.py install
 
 NOTE: This command must be run as root.
 
+# USB-Serial driver
+There is also two USB-serial drivers including in this repository, which will be helpful for ROS operation. To use the driver, run the following code in a terminal.
+```shell
+# (on PYNQ v2.3 only)
+cd ~/jupyter_notebooks/driver
+sudo insmod usbserial.ko
+sudo insmod cp210x.ko
+```

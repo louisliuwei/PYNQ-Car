@@ -44,6 +44,8 @@ if 'install' in sys.argv:
 	shutil.copytree(os.path.join(board_folder, 'overlays/Robot'), os.path.join('/usr/local/lib', os.environ['PYNQ_PYTHON'], 'dist-packages/pynq/overlays/Robot')) #copy overlay
 
 	for f in os.listdir(os.path.join(board_folder, 'lib/arduino/')):
+		if os.path.isfile(os.path.join('/usr/local/lib', os.environ['PYNQ_PYTHON'], 'dist-packages/pynq/lib/arduino', f)):
+			os.remove(os.path.join('/usr/local/lib', os.environ['PYNQ_PYTHON'], 'dist-packages/pynq/lib/arduino', f))
 		shutil.copyfile(os.path.join(board_folder, 'lib/arduino/', f) ,os.path.join('/usr/local/lib', os.environ['PYNQ_PYTHON'], 'dist-packages/pynq/lib/arduino', f)) #copy lib
 
 	if os.path.isdir(os.environ["PYNQ_JUPYTER_NOTEBOOKS"]+"/driver/"):
